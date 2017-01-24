@@ -2,16 +2,11 @@ package main
 
 import (
 	"os"
-	"sync"
 
 	"github.com/tscolari/plag/output"
 	"github.com/tscolari/plag/parser"
 	"github.com/urfave/cli"
 )
-
-type Outputer interface {
-	Write(chan parser.Data) error
-}
 
 func main() {
 	app := cli.NewApp()
@@ -45,29 +40,19 @@ func main() {
 		parser := parser.New()
 		data := parser.Parse(os.Stdin, c.String("message"))
 
-		outputers := buildOutputers(c)
-		var wg sync.WaitGroup
-		for _, outputer := range outputers {
-			wg.Add(1)
-			go func(outputer Outputer) {
-				_ = outputer.Write(data)
-				wg.Done()
-			}(outputer)
-		}
+		outputer := output.NewMulti()
+		addOutputers(outputer, c)
+		_ = outputer.Write(data)
 
-		wg.Wait()
 		return nil
 	}
 
 	_ = app.Run(os.Args)
 }
 
-func buildOutputers(c *cli.Context) []Outputer {
-	outputers := []Outputer{}
+func addOutputers(multi *output.Multi, c *cli.Context) {
 	if c.IsSet("csv") {
 		csv, _ := output.NewCsv(c.String("csv"))
-		outputers = append(outputers, csv)
+		multi.Add(csv)
 	}
-
-	return outputers
 }

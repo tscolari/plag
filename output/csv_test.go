@@ -39,13 +39,9 @@ var _ = Describe("Csv", func() {
 		})
 
 		It("writes the data in a csv format", func() {
-			dataChan := make(chan parser.Data, 3)
 			for _, d := range data {
-				dataChan <- d
+				Expect(outputer.Write(d)).To(Succeed())
 			}
-
-			close(dataChan)
-			Expect(outputer.Write(dataChan)).To(Succeed())
 			writenData, err := ioutil.ReadAll(outputFile)
 			Expect(err).NotTo(HaveOccurred())
 			for _, d := range data {

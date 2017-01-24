@@ -12,7 +12,7 @@ type Csv struct {
 }
 
 func NewCsv(filePath string) (*Csv, error) {
-	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0600)
+	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		return nil, err
 	}
@@ -20,10 +20,12 @@ func NewCsv(filePath string) (*Csv, error) {
 	return &Csv{file: file}, nil
 }
 
-func (o *Csv) Write(dataChan chan parser.Data) error {
-	for data := range dataChan {
-		fmt.Fprintf(o.file, "%s,%d\n", data.Timestamp.String(), data.Value)
-	}
+func (o *Csv) Write(data parser.Data) error {
+	fmt.Fprintf(o.file, "%s,%d\n", data.Timestamp.String(), data.Value)
 
+	return nil
+}
+
+func (o *Csv) Close() error {
 	return o.file.Close()
 }
