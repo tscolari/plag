@@ -1,6 +1,11 @@
 package output
 
-import "github.com/tscolari/plag/parser"
+import (
+	"fmt"
+	"os"
+
+	"github.com/tscolari/plag/parser"
+)
 
 type Outputer interface {
 	Write(data parser.Data) error
@@ -27,7 +32,9 @@ func (o *Multi) Add(outputer Outputer) {
 func (o *Multi) Write(dataChan chan parser.Data) error {
 	for data := range dataChan {
 		for _, outputer := range o.outputers {
-			_ = outputer.Write(data)
+			if err := outputer.Write(data); err != nil {
+				fmt.Fprintf(os.Stderr, "metric failed: %s", err.Error())
+			}
 		}
 	}
 

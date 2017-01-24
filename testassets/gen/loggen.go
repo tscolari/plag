@@ -26,13 +26,16 @@ func main() {
 }
 
 func logAndWait(logger lager.Logger, sessionName string) {
+	randSleep := rand.Int() % 10
+	time.Sleep(time.Duration(randSleep) * time.Second)
+
 	logger = logger.Session(sessionName)
 	logger.Info("start")
 	defer logger.Info("end")
 	defer wg.Done()
 
 	logger.Info("start-to-sleep")
-	randSleep := rand.Int() % 10
+	randSleep = rand.Int() % 10
 	time.Sleep(time.Duration(randSleep) * time.Second)
 	logger.Info("finished-to-sleep")
 }

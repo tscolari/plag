@@ -6,6 +6,7 @@ import (
 	"github.com/tscolari/plag/output"
 	"github.com/tscolari/plag/parser"
 	"github.com/urfave/cli"
+	datadog "github.com/zorkian/go-datadog-api"
 )
 
 func main() {
@@ -29,6 +30,10 @@ func main() {
 		cli.StringFlag{
 			Name:  "datadog-app-key",
 			Usage: "datadog app key",
+		},
+		cli.StringFlag{
+			Name:  "datadog-metric-name",
+			Usage: "metric name to post to datadog",
 		},
 	}
 
@@ -54,5 +59,19 @@ func addOutputers(multi *output.Multi, c *cli.Context) {
 	if c.IsSet("csv") {
 		csv, _ := output.NewCsv(c.String("csv"))
 		multi.Add(csv)
+	}
+
+	if c.IsSet("datadog-api-key") {
+		if !c.IsSet("datadog-app-key") {
+			panic("Missing `--datadog-app-key` flag")
+		}
+
+		client := datadog.NewClient(c.String("datadog-api-key"), c.String("datadog-app-key"))
+		metricName := c.String("message")
+		if c.IsSet("datadog-metric-name") {
+			metricName = c.String("datadog-metric-name")
+		}
+		datadog := output.NewDatadog(client, metricName)
+		multi.Add(datadog)
 	}
 }
