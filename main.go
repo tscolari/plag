@@ -70,10 +70,12 @@ func main() {
 
 		outputer := output.NewMulti()
 		addOutputers(outputer, c)
-		_ = outputer.Write(data)
 
 		if c.IsSet("graph") {
+			go outputer.Write(data)
 			termui.Loop()
+		} else {
+			_ = outputer.Write(data)
 		}
 		return nil
 	}
