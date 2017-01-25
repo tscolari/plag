@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"time"
 
 	"github.com/gizak/termui"
 	"github.com/tscolari/plag/output"
@@ -39,6 +40,11 @@ func main() {
 		cli.BoolFlag{
 			Name:  "graph",
 			Usage: "plot realtime graph on terminal",
+		},
+		cli.DurationFlag{
+			Name:  "graph-decay",
+			Usage: "duration for graph EWMA function",
+			Value: 5 * time.Second,
 		},
 	}
 
@@ -96,7 +102,7 @@ func addOutputers(multi *output.Multi, c *cli.Context) {
 	}
 
 	if c.IsSet("graph") {
-		graph := output.NewGraph(c.String("message"))
+		graph := output.NewGraph(c.String("message"), c.Duration("graph-decay"))
 		multi.Add(graph)
 	}
 }

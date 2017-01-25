@@ -14,9 +14,10 @@ type Graph struct {
 	barChart  *termui.BarChart
 	lineChart *termui.LineChart
 	points    []parser.Data
+	decay     time.Duration
 }
 
-func NewGraph(title string) *Graph {
+func NewGraph(title string, decay time.Duration) *Graph {
 	bc := termui.NewBarChart()
 	bc.BorderLabel = title
 	bc.TextColor = termui.ColorGreen
@@ -27,13 +28,14 @@ func NewGraph(title string) *Graph {
 	lc := termui.NewLineChart()
 	lc.AxesColor = termui.ColorWhite
 	lc.LineColor = termui.ColorYellow | termui.AttrBold
-	lc.BorderLabel = "ewma 5"
+	lc.BorderLabel = fmt.Sprintf("EWMA %s", decay.String())
 	termui.Render(lc)
 
 	return &Graph{
 		barChart:  bc,
 		lineChart: lc,
 		points:    []parser.Data{},
+		decay:     decay,
 	}
 }
 
@@ -96,7 +98,7 @@ func (o *Graph) pointsToDataAndLabel(maxWidth int) ([]int, []string) {
 
 func (o *Graph) pointsToEWMA(maxWidth int) []float64 {
 	floats := []float64{}
-	ewma := ewma.NewEwma(5 * time.Second)
+	ewma := ewma.NewEwma(o.decay)
 
 	for _, p := range o.points {
 		floats = append(floats, ewma.Update(p.Value.Seconds(), p.Timestamp))
