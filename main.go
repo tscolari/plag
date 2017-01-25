@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	"github.com/gizak/termui"
 	"github.com/tscolari/plag/output"
 	"github.com/tscolari/plag/parser"
 	"github.com/urfave/cli"
@@ -35,6 +36,10 @@ func main() {
 			Name:  "datadog-metric-name",
 			Usage: "metric name to post to datadog",
 		},
+		cli.BoolFlag{
+			Name:  "graph",
+			Usage: "plot realtime graph on terminal",
+		},
 	}
 
 	app.Action = func(c *cli.Context) error {
@@ -45,10 +50,25 @@ func main() {
 		parser := parser.New()
 		data := parser.Parse(os.Stdin, c.String("message"))
 
+		if c.IsSet("graph") {
+			if err := termui.Init(); err != nil {
+				panic(err)
+			}
+			defer termui.Close()
+
+			termui.Handle("/sys/kbd/q", func(termui.Event) {
+				close(data)
+				termui.StopLoop()
+			})
+		}
+
 		outputer := output.NewMulti()
 		addOutputers(outputer, c)
 		_ = outputer.Write(data)
 
+		if c.IsSet("graph") {
+			termui.Loop()
+		}
 		return nil
 	}
 
@@ -73,5 +93,10 @@ func addOutputers(multi *output.Multi, c *cli.Context) {
 		}
 		datadog := output.NewDatadog(client, metricName)
 		multi.Add(datadog)
+	}
+
+	if c.IsSet("graph") {
+		graph := output.NewGraph(c.String("message"))
+		multi.Add(graph)
 	}
 }
