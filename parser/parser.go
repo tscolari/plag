@@ -10,8 +10,8 @@ import (
 	"code.cloudfoundry.org/lager/chug"
 )
 
-var validStarters = []string{"begin", "start", "starting"}
-var validFinishers = []string{"finish", "end", "ending"}
+var validStarters = []string{"begin", "start", "starting", "started"}
+var validFinishers = []string{"finish", "end", "ending", "finished"}
 
 type Data struct {
 	Timestamp time.Time
