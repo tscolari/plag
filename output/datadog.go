@@ -23,7 +23,7 @@ func NewDatadog(client DatadogClient, metricName string) *Datadog {
 
 func (o *Datadog) Write(data parser.Data) error {
 	metric := datadog.Metric{
-		Metric: o.metricName,
+		Metric: &o.metricName,
 		Points: []datadog.DataPoint{
 			datadog.DataPoint{
 				float64(data.Timestamp.Unix()),
