@@ -47,6 +47,8 @@ log | plag --message log.message.to.watch --datadog-api-key KEY --datadog-app-ke
 
 Plot points real-time as a graph on the terminal
 
+![graph example](https://raw.githubusercontent.com/tscolari/plag/master/plag.gif)
+
 ```
 log | plag --message log.message.to.watch --graph --graph-decay 20s
 ```
