@@ -11,7 +11,7 @@ import (
 )
 
 var validStarters = []string{"begin", "start", "starting", "started"}
-var validFinishers = []string{"finish", "end", "ending", "finished"}
+var validFinishers = []string{"finish", "end", "ending", "finished", "done"}
 
 type Data struct {
 	Timestamp time.Time
